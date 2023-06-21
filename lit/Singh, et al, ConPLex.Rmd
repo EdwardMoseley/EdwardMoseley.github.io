@@ -1,0 +1,128 @@
+---
+title: "Singh, et al Drug-Target Lexicon 2022"
+output: html_document
+date: "2023-06-08"
+---
+
+# Learning the Drug-Target Interaction Lexicon
+
+## Introduction
+
+In this publication, the authors introduce ConPLex, which relies on pre-trained protein language models (PLMs, "PLex") and a novel protein-anchored constrastive co-embedding ("Con"), to perform sequence-based prediction of drug-target interactions.
+
+The authors seek a method that is fast and accurate for the computational prediction of drug-target interactions (DTIs).
+
+One class of DTI methods is "molecular docking", and using 3D structural representations of the drug and target. 3D structure prediction models have made this method more effective, but it comes at significant computational cost, which prohibits its use for large DTI screening.
+
+Note that other structure-based approaches include:
+
+1. Rational Design
+2. Active Site Modeling
+3. Template modeling
+
+Alternatively, the approach of implicitly using the 3D protein structure, as when the inputs consist only of a molecular desription of the drug, like in the SMILES string (Anderson E, Veith GD, Weininger D (1987)), and the amino acid sequence of the protein target. 
+
+These _Sequence Based_ DTI approaches enable scalable DTI prediction, but it is challenging to match the levels of accuracy obtained by structure-based approaches.
+
+Note that "The high level of diversity among the DTI inputs, combined with the limited availability of DTI training data, limit the accuracy of these methods and their generalizability beyond their training domain. Furthermore, the methods that do generalize often do so by sacrificing fine-grained specificity, i.e., are unable to distinguish true-positive binding compounds from false positives with similar physico-chemical properties ("decoys")"
+
+The "PLex" (Pre-trained Lexographic) portion of ConPLex acts to mitigate the problem of limited DTI training data by transfering learned protein representations from pre-trained protein language models to the DTI prediction task. Note that these representations encode structural data implicitely, and benefit from being trained on very large corpora of protein sequences.
+
+Beginning with PLM models, the second insight of the authors seeks to address the fine-grained specificity problem in their architecture by using contrastive learning (Con): a novel, protein-anchored contrastive co-embedding that co-locates the proteins and the drugs into a shared latent-space. 
+
+Note that these co-embeddings enforce separation between true interaction partners and decoys to achieve generalizability as well as specificity.
+
+We also consider the adaptation beyong binary predictions to binding affinities. 
+
+The co-embedding of both proteins and drugs inthe same spaces offers interpretability, and the authors show that distances in this space meaningfully reflect protein domain structure and binding function. 
+
+To illustrate, the authors leverage ConPLex representations to functionally characterize cell-surface proteins from the Sufaceome database (Bausch-Fluck D, et al. (2018) The in silico human surfaceome.).
+
+**Note that "Surfaceome" is a set of 2,886 proteins localized to the external plasma membrane that participate in signaling and are likely able to be easily targetd by ligands.**
+
+ConPLex is extremely fast. As a proof of concept, the authors made predictions for the human proteom against all drugs in ChEMBL (Huang K, et al. (2021) Therapeutics data commons: Machine learning datasets and 688 tasks for drug discovery and development.) in just under 24 hours.
+
+Thus, ConPLex has the potential to be applied for tasks which would require prohibitive amounts of computation for purely structure based approaches or less efficient sequence-based methods, such as genome-scale side-effect screens, identifying drug re-purposing candidates via massive compound libraries searches, or in silico deep mutational scans to predict variant effects on binding with currently approved or potential new therapeutics.
+
+Note that most DTI methods are O(n^2), but ConPlex predictions are O(n).
+
+### Distinguishing Between Low- and High-Covereage DTI predictoin
+
+Benchmarking is performed with two different regimes, "low-coverage" and "high-coverage" DTI predictions (Figure 1c)..
+
+The authors distinguish between low-coverage data sets:
+
+* **Low-coverage data sets** - tend to measure the broad strokes of the DTI landscape, containing a highly diverse set of drugs and targets. Such data sets can present a modeling challenge due to the diverse nature of targets covered, but allow for a broad assessment of compatibility between classes of compounds and proteins.
+
+* **High-coverage data sets** - represent the opposite trade-off: they contain limited diversity in drug or target type, but report a dense set of potential pairwise interactions. Thus, they capture the fine-grained details of a specific sub-class of drug-target binding and enable distinguishing between similar biomolecules in a particular context.
+
+They also note that they thus lend themselves to different use-cases.
+
+* **Low-Coverage Regime** - relevant when applying DTI models for large-scal scans to predict interactions for a potential target against a large compound library (e.g. for drug repurposing as in Donertas, et al and Morselli et al), for for scannding a candidate drug against an entire proteome to identify potential adverse and off-target effects (as in Huang, et al). Data at this scale is often low coverage, with only a small number of known interactions for each unique biomolecule. Thus, DTI models for this task should be broadly applicable and accurately generalize to many different families of proteins and drugs. However, this generalization often comes at the price of specificity, resulting in models that are unable to distinguish between similar drugs/proteins.
+
+* **High-Coverage Regime** - relevant when optimizing a particular interaction. Here, models can be trained to be highly specific to a protein family or class of drugs, so much so that a per-drug or per-target model is trained to capture the precise binding dynamics of that biomolecule. While such models can be effective for lead optimization, they require high coverage on the biomolecule of interest to make accurate predictions; this may not always be available. Additionally, such models lack the capacity to generalize beyond the training domain and thus cannot be used for genome- or drug bank- scale prediction.
+
+Note that the PLM approach of ConPLex enables strong performance in both regimes.
+
+* **ConPLex Low-Coverage**: The strength comes mostly from the "PLex" part, where it can leverage the effective generalization of language models to achieve state-of-the-art performance.
+
+* **ConPLex High-Coverage**: The "Con" part becomes important, since it becomes feasible to train drug- or target-specific models with high accuracy, and such models often outperform more generic models.
+
+As a result, ConPLex is able to achieve high specificity in low-diversity, high-coverage scenarios, while remaining broadly applicable to protein targets with limited data. Thus, ConPLex is applicable for both large-scale compound or target screens and fine-grained, highly specific binding prediction.
+
+## Results
+
+### Model Overview
+
+To achieve generalizability and specificity, ConPLex leverages advances in both protein language modeling (PLM) and metric learning.
+
+They start with pre-trained representations and learn a non-linear projection of these representations to a shared space.
+
+
+We guide the learning by alternating between two objectives over multiple iterations: a **coarse-grained objective** of accurately classifying DTIs, and a **fine-grained objective** of distinguishing decoys from drugs. 
+
+The **coarse-grained objective** is evaluated over a low-coverage data set, which trains the model to distinguish between broad classes of drug and target, and makes initial predictions in the right “neighborhood” of the DTI space. 
+
+The fine-grained objective is evaluated over a high-coverage data set, which fine-tunes the model to distinguish between true and false positive interactions in the same "neighborhood" and achieve high specificity within a class.
+
+#### Featurize Inputs
+
+To featurize inputs, here we use **Morgan fingerprint (1)** for small molecules, and embeddings from pretrained **ProtBert model (2)** for proteins.
+
+1. Morgan Fingerprints: Morgan HL (1965) The generation of a unique machine description for chemical structures-a technique developed at chemical abstracts service. Journal of Chemical Documentation 5(2):107–113.
+
+2. Elnaggar A, et al. (2020) ProtTrans: towards cracking the language of life’s code through self-supervised deep learning and high performance computing. arXiv
+
+Note that other choices for features, including several other foundation PLMs, are investigated in Supplement S2.
+
+### ConPLex achieves state-of-the-art performance on low-coverage and zero-shot interactions
+
+A key advance of ConPLex is the use of pre-trained protein language models (PLMs) for protein representation. As foreshadowed by Scaiewicz and Levitt (citation 29), PLMs have repeatedly been shown to encode evolutionary and structural information (citations 30-32), and to enable broad generalization in low-coverage scenarios (33, 34).
+
+Here, we show that ConPLex achieves state-of-the-art performance on three low-coverage (where it is important to learn broad strokes of the DTI landscape) benchmark data sets:
+
+1. **BIOSNAP** -- Has "unseen drugs" and "unseen targets" in holdout set
+
+2. **BindingDB**
+
+3. **DAVIS**
+
+Note also (they don't use PLM protein features) the following methods:
+
+1. MolTrans
+
+2. GNN-CPI
+
+3. DeepConv-DTI
+
+The authors demonstrate that ConPLex achieves the best zero-shot prediction performance (Table 1)
+
+### Contrastive learning enables high-specificity DTI mapping
+
+
+
+#### Questions/To-Do's:
+
+1. Learn more about Protein Language Models (PLMs)
+
+2. Begin list the publicly available databases, as well as their characteristics
