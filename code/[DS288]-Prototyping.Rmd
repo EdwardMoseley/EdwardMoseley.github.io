@@ -1,0 +1,59 @@
+---
+title: "[DS288]-Prototyping"
+output: html_document
+date: "2023-06-27"
+---
+
+# pRESTO Prototype Workflow
+
+Note that this document relies completely on Illumina MiSeq 2x250 BCR mRNA [example workflow](https://presto.readthedocs.io/en/stable/workflows/Greiff2014_Workflow.html) from pRESTO (The REpertoire Sequencing TOolkit).
+
+## Data Sources
+
+Focuses on data from: Greiff, V. et al. "Quantitative assessment of the robustness of next-generation sequencing of antibody variable gene repertoires from immunized mice." *BMC Immunol.* (2014)
+
+## Installation and Environment Setup
+
+#### Immcantation
+
+* First, [immcantation v.4.4.0](https://hub.docker.com/r/immcantation/suite) was downloaded via Docker
+
+```
+docker pull immcantation/suite:4.4.0
+```
+
+* Next, the [SRA Toolkit](https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit) was downloaded, and the [installation guide](https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit) followed.
+
+#### SRA Toolkit
+
+We need the first 25,000 sequences of sample `ERR346600`, which may downloaded using fastq-dump from the [SRA Toolkit](https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit).
+
+```
+fastq-dump --split-files -X 25000 ERR346600
+```
+
+## Read Configuration
+
+
+<center>
+![](/Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/img/Greiff2014_ReadConfiguration.svg)
+
+</center>
+
+**Schematic of Illumina MiSeq 2x250 stranded paired-end reads without UMI barcodes.**
+
+**Notes (per workflow documentation):**
+
+*Each 250 base-pair read was sequenced from one end of the target cDNA, so that the two reads together cover the entire variable region of the Ig heavy chain. 
+
+* The V(D)J reading frame proceeds from the start of read 2 to the start of read 1. 
+
+* Read 1 is in the opposite orientation (reverse complement), and contains the C-region primer sequence. 
+
+* Both reads begin with a random sequences of 4 nucleotides.
+
+### FlowChart
+
+<center>
+![](/Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/img/Greiff2014_Flowchart.svg)
+</center>
