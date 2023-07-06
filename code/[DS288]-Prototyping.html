@@ -364,30 +364,18 @@ workflow</a> from pRESTO (The REpertoire Sequencing TOolkit).</p>
 <h2>Data Sources</h2>
 <p>Focuses on data from: Greiff, V. et al. “Quantitative assessment of
 the robustness of next-generation sequencing of antibody variable gene
-repertoires from immunized mice.” <em>BMC Immunol. 2014.</em></p>
+repertoires from immunized mice.” <em>BMC Immunol.</em> (2014)</p>
 </div>
-<div id="installation-and-environment-setup" class="section level2">
-<h2>Installation and Environment Setup</h2>
-<div id="immcantation" class="section level4">
-<h4>Immcantation</h4>
-<ul>
-<li>First, <a href="https://hub.docker.com/r/immcantation/suite">immcantation
-v.4.4.0</a> was downloaded via Docker</li>
-</ul>
-<pre><code>docker pull immcantation/suite:4.4.0</code></pre>
-<ul>
-<li>Next, the <a href="https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit">SRA
-Toolkit</a> was downloaded, and the <a href="https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit">installation
-guide</a> followed.</li>
-</ul>
-</div>
-<div id="sra-toolkit" class="section level4">
-<h4>SRA Toolkit</h4>
-<p>We need the first 25,000 sequences of sample <code>ERR346600</code>,
-which may downloaded using fastq-dump from the <a href="https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit">SRA
-Toolkit</a>.</p>
-<pre><code>fastq-dump --split-files -X 25000 ERR346600</code></pre>
-</div>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>Here, we’re going to review each step required to translate raw
+sequence reads to an annotated repertoir of V(D)J sequences.</p>
+<p>Overall, this is divided into:</p>
+<ol style="list-style-type: decimal">
+<li><p>Paired-end assembly</p></li>
+<li><p>Quality control and primer annotation</p></li>
+<li><p>Deduplication and filtering</p></li>
+</ol>
 </div>
 <div id="read-configuration" class="section level2">
 <h2>Read Configuration</h2>
@@ -414,6 +402,280 @@ nucleotides.</p></li>
 <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+DQo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPg0KPCEtLSBHZW5lcmF0ZWQgYnkgTWljcm9zb2Z0IFZpc2lvLCBTVkcgRXhwb3J0IEdyZWlmZjIwMTRfRmxvd2NoYXJ0LnN2ZyBQYWdlLTEgLS0+DQo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOmV2PSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL3htbC1ldmVudHMiDQoJCXdpZHRoPSI0LjY1Mjc4aW4iIGhlaWdodD0iNC40MDk1OWluIiB2aWV3Qm94PSIwIDAgMzM1IDMxNy40OTEiIHhtbDpzcGFjZT0icHJlc2VydmUiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiINCgkJY2xhc3M9InN0MjAiPg0KCTxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQoJPCFbQ0RBVEFbDQoJCS5zdDEge3Zpc2liaWxpdHk6dmlzaWJsZX0NCgkJLnN0MiB7ZmlsbDpub25lO2ZpbHRlcjp1cmwoI2ZpbHRlcl8yLjY2NjY2Njc0NjEzOTUpO21hcmtlci1lbmQ6dXJsKCNtcmtyNS04KTtzdHJva2U6IzAwMDAwMDtzdHJva2UtZGFzaGFycmF5OjAuNzUsMS41O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utb3BhY2l0eTowLjR9DQoJCS5zdDMge2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MC40O3N0cm9rZTojMDAwMDAwO3N0cm9rZS1vcGFjaXR5OjAuNDtzdHJva2Utd2lkdGg6MC4yMjkzNTc3OTgxNjUxNH0NCgkJLnN0NCB7bWFya2VyLWVuZDp1cmwoI21ya3I1LTE0KTtzdHJva2U6IzAwMDAwMDtzdHJva2UtZGFzaGFycmF5OjAuNzUsMS41O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6MC43NX0NCgkJLnN0NSB7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjAuMjI5MzU3Nzk4MTY1MTR9DQoJCS5zdDYge2ZpbGw6bm9uZTtmaWx0ZXI6dXJsKCNmaWx0ZXJfMi42NjY2NjY3NDYxMzk1KTttYXJrZXItZW5kOnVybCgjbXJrcjUtMjIpO3N0cm9rZTojMDAwMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utb3BhY2l0eTowLjR9DQoJCS5zdDcge2ZpbGw6IzAwMDAwMDtmaWxsLW9wYWNpdHk6MC40O3N0cm9rZTojMDAwMDAwO3N0cm9rZS1vcGFjaXR5OjAuNDtzdHJva2Utd2lkdGg6MC4zNzMxMzQzMjgzNTgyMX0NCgkJLnN0OCB7bWFya2VyLWVuZDp1cmwoI21ya3I1LTI4KTtzdHJva2U6IzAwMDAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjEuNX0NCgkJLnN0OSB7ZmlsbDojMDAwMDAwO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTojMDAwMDAwO3N0cm9rZS1vcGFjaXR5OjE7c3Ryb2tlLXdpZHRoOjAuMzczMTM0MzI4MzU4MjF9DQoJCS5zdDEwIHtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjAuNDtmaWx0ZXI6dXJsKCNmaWx0ZXJfMi42NjY2NjY3NDYxMzk1KTtzdHJva2U6IzAwMDAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW9wYWNpdHk6MC40fQ0KCQkuc3QxMSB7ZmlsbDojZDhkOGQ4O3N0cm9rZTojMDAwMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6MC4yNH0NCgkJLnN0MTIge2ZpbGw6IzAwMDAwMDtmb250LWZhbWlseTpBcmlhbDtmb250LXNpemU6MS4wMDAwMWVtO2ZvbnQtd2VpZ2h0OmJvbGR9DQoJCS5zdDEzIHtmb250LXNpemU6MC42NjY2NTllbTtmb250LXdlaWdodDpub3JtYWx9DQoJCS5zdDE0IHtmb250LXNpemU6MC42NjY2NTllbTtmb250LXN0eWxlOml0YWxpYztmb250LXdlaWdodDpub3JtYWx9DQoJCS5zdDE1IHtmaWxsOiMyMmM0NzY7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDowLjI0fQ0KCQkuc3QxNiB7ZmlsbDojMDAwMDAwO2ZvbnQtZmFtaWx5OkFyaWFsO2ZvbnQtc2l6ZTowLjkxNjY3MmVtfQ0KCQkuc3QxNyB7ZmlsbDojMjk4MGI5O3N0cm9rZTojMDAwMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6MC4yNH0NCgkJLnN0MTgge2ZpbGw6I2ZmYTIyYztzdHJva2U6IzAwMDAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjAuMjR9DQoJCS5zdDE5IHtmaWxsOiMwMDAwMDA7Zm9udC1mYW1pbHk6QXJpYWw7Zm9udC1zaXplOjAuNjY2NjY0ZW19DQoJCS5zdDIwIHtmaWxsOm5vbmU7ZmlsbC1ydWxlOmV2ZW5vZGQ7Zm9udC1zaXplOjEycHg7b3ZlcmZsb3c6dmlzaWJsZTtzdHJva2UtbGluZWNhcDpzcXVhcmU7c3Ryb2tlLW1pdGVybGltaXQ6M30NCgldXT4NCgk8L3N0eWxlPg0KDQoJPGRlZnMgaWQ9Ik1hcmtlcnMiPg0KCQk8ZyBpZD0ibGVuZDUiPg0KCQkJPHBhdGggZD0iTSAyIDEgTCAwIDAgTCAxLjk4MTE3IC0wLjk5MzM4NyBDIDEuNjcxNzMgLTAuMzY0NTE1IDEuNjczMDEgMC4zNzI2NDEgMS45ODQ2NSAxLjAwMDQzICIgc3R5bGU9InN0cm9rZTpub25lIi8+DQoJCTwvZz4NCgkJPG1hcmtlciBpZD0ibXJrcjUtOCIgY2xhc3M9InN0MyIgcmVmWD0iLTcuNjMiIG9yaWVudD0iYXV0byIgbWFya2VyVW5pdHM9InN0cm9rZVdpZHRoIiBvdmVyZmxvdz0idmlzaWJsZSI+DQoJCQk8dXNlIHhsaW5rOmhyZWY9IiNsZW5kNSIgdHJhbnNmb3JtPSJzY2FsZSgtNC4zNiwtNC4zNikgIi8+DQoJCTwvbWFya2VyPg0KCQk8bWFya2VyIGlkPSJtcmtyNS0xNCIgY2xhc3M9InN0NSIgcmVmWD0iLTcuNjMiIG9yaWVudD0iYXV0byIgbWFya2VyVW5pdHM9InN0cm9rZVdpZHRoIiBvdmVyZmxvdz0idmlzaWJsZSI+DQoJCQk8dXNlIHhsaW5rOmhyZWY9IiNsZW5kNSIgdHJhbnNmb3JtPSJzY2FsZSgtNC4zNiwtNC4zNikgIi8+DQoJCTwvbWFya2VyPg0KCQk8bWFya2VyIGlkPSJtcmtyNS0yMiIgY2xhc3M9InN0NyIgcmVmWD0iLTQuNjkiIG9yaWVudD0iYXV0byIgbWFya2VyVW5pdHM9InN0cm9rZVdpZHRoIiBvdmVyZmxvdz0idmlzaWJsZSI+DQoJCQk8dXNlIHhsaW5rOmhyZWY9IiNsZW5kNSIgdHJhbnNmb3JtPSJzY2FsZSgtMi42OCwtMi42OCkgIi8+DQoJCTwvbWFya2VyPg0KCQk8bWFya2VyIGlkPSJtcmtyNS0yOCIgY2xhc3M9InN0OSIgcmVmWD0iLTQuNjkiIG9yaWVudD0iYXV0byIgbWFya2VyVW5pdHM9InN0cm9rZVdpZHRoIiBvdmVyZmxvdz0idmlzaWJsZSI+DQoJCQk8dXNlIHhsaW5rOmhyZWY9IiNsZW5kNSIgdHJhbnNmb3JtPSJzY2FsZSgtMi42OCwtMi42OCkgIi8+DQoJCTwvbWFya2VyPg0KCTwvZGVmcz4NCgk8ZGVmcyBpZD0iRmlsdGVycyI+DQoJCTxmaWx0ZXIgaWQ9ImZpbHRlcl8yLjY2NjY2Njc0NjEzOTUiPg0KCQkJPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMi42NjY2NjY3NDYxMzk1Ii8+DQoJCTwvZmlsdGVyPg0KCTwvZGVmcz4NCgk8Zz4NCgkJPHRpdGxlPlBhZ2UtMTwvdGl0bGU+DQoJCTxnIGlkPSJzaGFwZTM4LTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwOCwtMjA0Ljk4NykiPg0KCQkJPHRpdGxlPkR5bmFtaWMgY29ubmVjdG9yLjM4PC90aXRsZT4NCgkJCTxnIGlkPSJzaGFkb3czOC0yIiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik0wIDMwOC40OSBMLTIxLjI4IDMwOC40OSIgY2xhc3M9InN0MiIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTAgMzA4LjQ5IEwtMjEuMjggMzA4LjQ5IiBjbGFzcz0ic3Q0Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlNDctMTUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE1Ni4zNzUsLTk2LjM2OTUpIj4NCgkJCTx0aXRsZT5EeW5hbWljIGNvbm5lY3Rvci40NzwvdGl0bGU+DQoJCQk8ZyBpZD0ic2hhZG93NDctMTYiIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMi4xMjEzMiwyLjEyMTMyKSIgY2xhc3M9InN0MSI+DQoJCQkJPHBhdGggZD0iTTkgMzE5Ljg3IEw5IDMyNi4wOCIgY2xhc3M9InN0NiIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTkgMzE5Ljg3IEw5IDMyNi4wOCIgY2xhc3M9InN0OCIvPg0KCQk8L2c+DQoJCTxnIGlkPSJzaGFwZTQ4LTI5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTYuMzc1LC01OS4zNzEzKSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuNDg8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzQ4LTMwIiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik05IDMxOC42MiBMOSAzMjcuMzMiIGNsYXNzPSJzdDYiLz4NCgkJCTwvZz4NCgkJCTxwYXRoIGQ9Ik05IDMxOC42MiBMOSAzMjcuMzMiIGNsYXNzPSJzdDgiLz4NCgkJPC9nPg0KCQk8ZyBpZD0ic2hhcGU0MS00MSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTkyLjM3OSwtMjM4LjczNykiPg0KCQkJPHRpdGxlPkR5bmFtaWMgY29ubmVjdG9yLjQxPC90aXRsZT4NCgkJCTxnIGlkPSJzaGFkb3c0MS00MiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNMCAzMTcuNDkgTDAgMzI0LjI0IEw3MiAzMjQuMjQgTDcyIDMzMC44OSIgY2xhc3M9InN0MiIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTAgMzE3LjQ5IEwwIDMyNC4yNCBMNzIgMzI0LjI0IEw3MiAzMzAuODkiIGNsYXNzPSJzdDQiLz4NCgkJPC9nPg0KCQk8ZyBpZD0ic2hhcGUzMi01MyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTA4LC0xNjguOTg3KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuMzI8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzMyLTU0IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik0wIDMwOC40OSBMLTIxLjI4IDMwOC40OSIgY2xhc3M9InN0MiIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTAgMzA4LjQ5IEwtMjEuMjggMzA4LjQ5IiBjbGFzcz0ic3Q0Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlMjQtNjUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIyNC40MzksLTE1LjQ5NjMpIj4NCgkJCTx0aXRsZT5EeW5hbWljIGNvbm5lY3Rvci4yNDwvdGl0bGU+DQoJCQk8ZyBpZD0ic2hhZG93MjQtNjYiIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMi4xMjEzMiwyLjEyMTMyKSIgY2xhc3M9InN0MSI+DQoJCQkJPHBhdGggZD0iTTAuNTYgMzA4LjQ5IEwxMS43MiAzMDguNDkiIGNsYXNzPSJzdDIiLz4NCgkJCTwvZz4NCgkJCTxwYXRoIGQ9Ik0wLjU2IDMwOC40OSBMMTEuNzIgMzA4LjQ5IiBjbGFzcz0ic3Q0Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlMjctNzciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwOCwtMTMyLjk4NykiPg0KCQkJPHRpdGxlPkR5bmFtaWMgY29ubmVjdG9yLjI3PC90aXRsZT4NCgkJCTxnIGlkPSJzaGFkb3cyNy03OCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNMCAzMDguNDkgTC0yMS4yOCAzMDguNDkiIGNsYXNzPSJzdDIiLz4NCgkJCTwvZz4NCgkJCTxwYXRoIGQ9Ik0wIDMwOC40OSBMLTIxLjI4IDMwOC40OSIgY2xhc3M9InN0NCIvPg0KCQk8L2c+DQoJCTxnIGlkPSJzaGFwZTE4LTg5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNzQuMzc1LC0xMzIuNjE1KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuMTg8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzE4LTkwIiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik0tOSAzMTkuMzcgTC05IDMyNi41OCIgY2xhc3M9InN0NiIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTS05IDMxOS4zNyBMLTkgMzI2LjU4IiBjbGFzcz0ic3Q4Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlMjgtMTAxIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTYuMzc1LC0xNjguOTg3KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuMjg8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzI4LTEwMiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNOSAzMTkuNzQgTDkgMzI2LjIxIiBjbGFzcz0ic3Q2Ii8+DQoJCQk8L2c+DQoJCQk8cGF0aCBkPSJNOSAzMTkuNzQgTDkgMzI2LjIxIiBjbGFzcz0ic3Q4Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlMjktMTEzIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTYuMzc1LC0yNDAuOTg3KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuMjk8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzI5LTExNCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNOSAzMTkuNzQgTDkgMzI2LjIxIiBjbGFzcz0ic3Q2Ii8+DQoJCQk8L2c+DQoJCQk8cGF0aCBkPSJNOSAzMTkuNzQgTDkgMzI2LjIxIiBjbGFzcz0ic3Q4Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlMzAtMTI1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNjQuMzc5LC0yNzkuMjM3KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuMzA8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzMwLTEyNiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNMCAzMTcuNDkgTDAgMzQ2Ljc0IEwtMzQuNTkgMzQ2Ljc0IiBjbGFzcz0ic3Q2Ii8+DQoJCQk8L2c+DQoJCQk8cGF0aCBkPSJNMCAzMTcuNDkgTDAgMzQ2Ljc0IEwtMzQuNTkgMzQ2Ljc0IiBjbGFzcz0ic3Q4Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlMzEtMTM3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2Ni4zNzg3LC0yNzkuMjM3KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3I8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzMxLTEzOCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNMCAzMTcuNDkgTDAgMzQ2Ljc0IEwzNC41OSAzNDYuNzQiIGNsYXNzPSJzdDYiLz4NCgkJCTwvZz4NCgkJCTxwYXRoIGQ9Ik0wIDMxNy40OSBMMCAzNDYuNzQgTDM0LjU5IDM0Ni43NCIgY2xhc3M9InN0OCIvPg0KCQk8L2c+DQoJCTxnIGlkPSJzaGFwZTEtMTQ5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyLjI1MzY4LC0yNzkuMjM3KSI+DQoJCQk8dGl0bGU+RXh0ZXJuYWwgRGF0YTwvdGl0bGU+DQoJCQk8ZGVzYz5SZWFkIDEgQy1SZWdpb24gUHJpbWVyIEZBU1RRPC9kZXNjPg0KCQkJPGcgaWQ9InNoYWRvdzEtMTUwIiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik00LjUgMjgxLjQ5IEwxMjguMjUgMjgxLjQ5IEEzOC4yNSAzOC4yNSAtMTgwIDAgMCAxMjguMjUgMzE3LjQ5IEw0LjUgMzE3LjQ5IEEzOC4yNSAzOC4yNSAwIDAgMSA0LjUgMjgxLjQ5DQoJCQkJCQkJIFoiIGNsYXNzPSJzdDEwIi8+DQoJCQk8L2c+DQoJCQk8cGF0aCBkPSJNNC41IDI4MS40OSBMMTI4LjI1IDI4MS40OSBBMzguMjUgMzguMjUgLTE4MCAwIDAgMTI4LjI1IDMxNy40OSBMNC41IDMxNy40OSBBMzguMjUgMzguMjUgMCAwIDEgNC41IDI4MS40OSBaIg0KCQkJCQljbGFzcz0ic3QxMSIvPg0KCQkJPHRleHQgeD0iNDQuNDUiIHk9IjI5My40OCIgY2xhc3M9InN0MTIiPlJlYWQgMSA8dHNwYW4geD0iMzQuMzQiIGR5PSIxLjM1ZW0iIGNsYXNzPSJzdDEzIj5DPC90c3Bhbj48dHNwYW4gY2xhc3M9InN0MTMiPi08L3RzcGFuPjx0c3Bhbg0KCQkJCQkJY2xhc3M9InN0MTMiPlJlZ2lvbiBQcmltZXIgPC90c3Bhbj48dHNwYW4geD0iNTAuNzkiIGR5PSIxLjIwMmVtIiBjbGFzcz0ic3QxNCI+RkFTVFE8L3RzcGFuPjwvdGV4dD4JCTwvZz4NCgkJPGcgaWQ9InNoYXBlNC0xNTkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIwMC4yNTQsLTI3OS4yMzcpIj4NCgkJCTx0aXRsZT5FeHRlcm5hbCBEYXRhLjQ8L3RpdGxlPg0KCQkJPGRlc2M+UmVhZCAyIFYtU2VnbWVudCBQcmltZXIgRkFTVFE8L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93NC0xNjAiIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMi4xMjEzMiwyLjEyMTMyKSIgY2xhc3M9InN0MSI+DQoJCQkJPHBhdGggZD0iTTQuNSAyODEuNDkgTDEyOC4yNSAyODEuNDkgQTM4LjI1IDM4LjI1IC0xODAgMCAwIDEyOC4yNSAzMTcuNDkgTDQuNSAzMTcuNDkgQTM4LjI1IDM4LjI1IDAgMCAxIDQuNSAyODEuNDkNCgkJCQkJCQkgWiIgY2xhc3M9InN0MTAiLz4NCgkJCTwvZz4NCgkJCTxwYXRoIGQ9Ik00LjUgMjgxLjQ5IEwxMjguMjUgMjgxLjQ5IEEzOC4yNSAzOC4yNSAtMTgwIDAgMCAxMjguMjUgMzE3LjQ5IEw0LjUgMzE3LjQ5IEEzOC4yNSAzOC4yNSAwIDAgMSA0LjUgMjgxLjQ5IFoiDQoJCQkJCWNsYXNzPSJzdDExIi8+DQoJCQk8dGV4dCB4PSI0NC40NSIgeT0iMjkzLjQ4IiBjbGFzcz0ic3QxMiI+UmVhZCAyIDx0c3BhbiB4PSIzMS4yMyIgZHk9IjEuMzVlbSIgY2xhc3M9InN0MTMiPlY8L3RzcGFuPjx0c3BhbiBjbGFzcz0ic3QxMyI+LTwvdHNwYW4+PHRzcGFuDQoJCQkJCQljbGFzcz0ic3QxMyI+U2VnbWVudCBQcmltZXIgPC90c3Bhbj48dHNwYW4geD0iNTAuNzkiIGR5PSIxLjIwMmVtIiBjbGFzcz0ic3QxNCI+RkFTVFE8L3RzcGFuPjwvdGV4dD4JCTwvZz4NCgkJPGcgaWQ9InNoYXBlMzctMTY5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTYuMzc1LC0yMDQuOTg3KSI+DQoJCQk8dGl0bGU+RHluYW1pYyBjb25uZWN0b3IuMzc8L3RpdGxlPg0KCQkJPGcgaWQ9InNoYWRvdzM3LTE3MCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNOSAzMTkuNzQgTDkgMzI2LjIxIiBjbGFzcz0ic3Q2Ii8+DQoJCQk8L2c+DQoJCQk8cGF0aCBkPSJNOSAzMTkuNzQgTDkgMzI2LjIxIiBjbGFzcz0ic3Q4Ii8+DQoJCTwvZz4NCgkJPGcgaWQ9InNoYXBlNS0xODEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwOCwtMTMwLjczNykiPg0KCQkJPHRpdGxlPlByb2Nlc3MuNTwvdGl0bGU+DQoJCQk8ZGVzYz5NYXNrUHJpbWVycyBzY29yZTwvZGVzYz4NCgkJCTxnIGlkPSJzaGFkb3c1LTE4MiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cmVjdCB4PSIwIiB5PSIyOTQuOTkxIiB3aWR0aD0iMTE0Ljc1IiBoZWlnaHQ9IjIyLjUiIGNsYXNzPSJzdDEwIi8+DQoJCQk8L2c+DQoJCQk8cmVjdCB4PSIwIiB5PSIyOTQuOTkxIiB3aWR0aD0iMTE0Ljc1IiBoZWlnaHQ9IjIyLjUiIGNsYXNzPSJzdDE1Ii8+DQoJCQk8dGV4dCB4PSIxMC4zMSIgeT0iMzA5LjU0IiBjbGFzcz0ic3QxNiI+TWFza1ByaW1lcnMgc2NvcmU8L3RleHQ+CQk8L2c+DQoJCTxnIGlkPSJzaGFwZTgtMTg3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDgsLTkzLjk5MjYpIj4NCgkJCTx0aXRsZT5Qcm9jZXNzLjg8L3RpdGxlPg0KCQkJPGRlc2M+Q29sbGFwc2VTZXE8L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93OC0xODgiIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMi4xMjEzMiwyLjEyMTMyKSIgY2xhc3M9InN0MSI+DQoJCQkJPHJlY3QgeD0iMCIgeT0iMjk0Ljk5MSIgd2lkdGg9IjExNC43NSIgaGVpZ2h0PSIyMi41IiBjbGFzcz0ic3QxMCIvPg0KCQkJPC9nPg0KCQkJPHJlY3QgeD0iMCIgeT0iMjk0Ljk5MSIgd2lkdGg9IjExNC43NSIgaGVpZ2h0PSIyMi41IiBjbGFzcz0ic3QxNyIvPg0KCQkJPHRleHQgeD0iMjYuMTkiIHk9IjMwOS41NCIgY2xhc3M9InN0MTYiPkNvbGxhcHNlU2VxPC90ZXh0PgkJPC9nPg0KCQk8ZyBpZD0ic2hhcGU5LTE5MyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTA4LC0yMzguNzM3KSI+DQoJCQk8dGl0bGU+UHJvY2Vzcy45PC90aXRsZT4NCgkJCTxkZXNjPkFzc2VtYmxlUGFpcnMgYWxpZ248L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93OS0xOTQiIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMi4xMjEzMiwyLjEyMTMyKSIgY2xhc3M9InN0MSI+DQoJCQkJPHJlY3QgeD0iMCIgeT0iMjk0Ljk5MSIgd2lkdGg9IjExNC43NSIgaGVpZ2h0PSIyMi41IiBjbGFzcz0ic3QxMCIvPg0KCQkJPC9nPg0KCQkJPHJlY3QgeD0iMCIgeT0iMjk0Ljk5MSIgd2lkdGg9IjExNC43NSIgaGVpZ2h0PSIyMi41IiBjbGFzcz0ic3QxOCIvPg0KCQkJPHRleHQgeD0iNy41NSIgeT0iMzA5LjU0IiBjbGFzcz0ic3QxNiI+QXNzZW1ibGVQYWlycyBhbGlnbjwvdGV4dD4JCTwvZz4NCgkJPGcgaWQ9InNoYXBlMTAtMTk5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDgsLTE2Ni43MzcpIj4NCgkJCTx0aXRsZT5Qcm9jZXNzLjEwPC90aXRsZT4NCgkJCTxkZXNjPk1hc2tQcmltZXJzIHNjb3JlPC9kZXNjPg0KCQkJPGcgaWQ9InNoYWRvdzEwLTIwMCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cmVjdCB4PSIwIiB5PSIyOTQuOTkxIiB3aWR0aD0iMTE0Ljc1IiBoZWlnaHQ9IjIyLjUiIGNsYXNzPSJzdDEwIi8+DQoJCQk8L2c+DQoJCQk8cmVjdCB4PSIwIiB5PSIyOTQuOTkxIiB3aWR0aD0iMTE0Ljc1IiBoZWlnaHQ9IjIyLjUiIGNsYXNzPSJzdDE1Ii8+DQoJCQk8dGV4dCB4PSIxMC4zMSIgeT0iMzA5LjU0IiBjbGFzcz0ic3QxNiI+TWFza1ByaW1lcnMgc2NvcmU8L3RleHQ+CQk8L2c+DQoJCTxnIGlkPSJzaGFwZTExLTIwNSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzYsLTE3Mi4zNjIpIj4NCgkJCTx0aXRsZT5TdGFydC9FbmQ8L3RpdGxlPg0KCQkJPGRlc2M+UGFyc2VMb2c8L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93MTEtMjA2IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik01LjYzIDMxNy40OSBMMzkuMzcgMzE3LjQ5IEE1LjYyNSA1LjYyNSAtMTgwIDAgMCAzOS4zNyAzMDYuMjQgTDUuNjMgMzA2LjI0IEE1LjYyNSA1LjYyNSAtMTgwIDEgMCA1LjYzIDMxNy40OQ0KCQkJCQkJCSBaIiBjbGFzcz0ic3QxMCIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTUuNjMgMzE3LjQ5IEwzOS4zNyAzMTcuNDkgQTUuNjI1IDUuNjI1IC0xODAgMCAwIDM5LjM3IDMwNi4yNCBMNS42MyAzMDYuMjQgQTUuNjI1IDUuNjI1IC0xODAgMSAwIDUuNjMgMzE3LjQ5DQoJCQkJCQkgWiIgY2xhc3M9InN0MTUiLz4NCgkJCTx0ZXh0IHg9IjUuMzgiIHk9IjMxNC4yNyIgY2xhc3M9InN0MTkiPlBhcnNlTG9nPC90ZXh0PgkJPC9nPg0KCQk8ZyBpZD0ic2hhcGUzNC0yMTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM2LC0xMzYuMzYyKSI+DQoJCQk8dGl0bGU+U3RhcnQvRW5kLjM0PC90aXRsZT4NCgkJCTxkZXNjPlBhcnNlTG9nPC9kZXNjPg0KCQkJPGcgaWQ9InNoYWRvdzM0LTIxMiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNNS42MyAzMTcuNDkgTDM5LjM3IDMxNy40OSBBNS42MjUgNS42MjUgLTE4MCAwIDAgMzkuMzcgMzA2LjI0IEw1LjYzIDMwNi4yNCBBNS42MjUgNS42MjUgLTE4MCAxIDAgNS42MyAzMTcuNDkNCgkJCQkJCQkgWiIgY2xhc3M9InN0MTAiLz4NCgkJCTwvZz4NCgkJCTxwYXRoIGQ9Ik01LjYzIDMxNy40OSBMMzkuMzcgMzE3LjQ5IEE1LjYyNSA1LjYyNSAtMTgwIDAgMCAzOS4zNyAzMDYuMjQgTDUuNjMgMzA2LjI0IEE1LjYyNSA1LjYyNSAtMTgwIDEgMCA1LjYzIDMxNy40OQ0KCQkJCQkJIFoiIGNsYXNzPSJzdDE1Ii8+DQoJCQk8dGV4dCB4PSI1LjM4IiB5PSIzMTQuMjciIGNsYXNzPSJzdDE5Ij5QYXJzZUxvZzwvdGV4dD4JCTwvZz4NCgkJPGcgaWQ9InNoYXBlMzYtMjE3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDgsLTIwMi43MzcpIj4NCgkJCTx0aXRsZT5Qcm9jZXNzLjM2PC90aXRsZT4NCgkJCTxkZXNjPkZpbHRlclNlcSBxdWFsaXR5PC9kZXNjPg0KCQkJPGcgaWQ9InNoYWRvdzM2LTIxOCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cmVjdCB4PSIwIiB5PSIyOTQuOTkxIiB3aWR0aD0iMTE0Ljc1IiBoZWlnaHQ9IjIyLjUiIGNsYXNzPSJzdDEwIi8+DQoJCQk8L2c+DQoJCQk8cmVjdCB4PSIwIiB5PSIyOTQuOTkxIiB3aWR0aD0iMTE0Ljc1IiBoZWlnaHQ9IjIyLjUiIGNsYXNzPSJzdDE1Ii8+DQoJCQk8dGV4dCB4PSIxNy45NCIgeT0iMzA5LjU0IiBjbGFzcz0ic3QxNiI+RmlsdGVyU2VxIHF1YWxpdHk8L3RleHQ+CQk8L2c+DQoJCTxnIGlkPSJzaGFwZTM5LTIyMyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzYsLTIwOC4zNjIpIj4NCgkJCTx0aXRsZT5TdGFydC9FbmQuMzk8L3RpdGxlPg0KCQkJPGRlc2M+UGFyc2VMb2c8L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93MzktMjI0IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik01LjYzIDMxNy40OSBMMzkuMzcgMzE3LjQ5IEE1LjYyNSA1LjYyNSAtMTgwIDAgMCAzOS4zNyAzMDYuMjQgTDUuNjMgMzA2LjI0IEE1LjYyNSA1LjYyNSAtMTgwIDEgMCA1LjYzIDMxNy40OQ0KCQkJCQkJCSBaIiBjbGFzcz0ic3QxMCIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTUuNjMgMzE3LjQ5IEwzOS4zNyAzMTcuNDkgQTUuNjI1IDUuNjI1IC0xODAgMCAwIDM5LjM3IDMwNi4yNCBMNS42MyAzMDYuMjQgQTUuNjI1IDUuNjI1IC0xODAgMSAwIDUuNjMgMzE3LjQ5DQoJCQkJCQkgWiIgY2xhc3M9InN0MTUiLz4NCgkJCTx0ZXh0IHg9IjUuMzgiIHk9IjMxNC4yNyIgY2xhc3M9InN0MTkiPlBhcnNlTG9nPC90ZXh0PgkJPC9nPg0KCQk8ZyBpZD0ic2hhcGU0MC0yMjkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI0MS44NzksLTIwOC4zNjIpIj4NCgkJCTx0aXRsZT5TdGFydC9FbmQuNDA8L3RpdGxlPg0KCQkJPGRlc2M+UGFyc2VMb2c8L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93NDAtMjMwIiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxwYXRoIGQ9Ik01LjYzIDMxNy40OSBMMzkuMzcgMzE3LjQ5IEE1LjYyNSA1LjYyNSAtMTgwIDAgMCAzOS4zNyAzMDYuMjQgTDUuNjMgMzA2LjI0IEE1LjYyNSA1LjYyNSAtMTgwIDEgMCA1LjYzIDMxNy40OQ0KCQkJCQkJCSBaIiBjbGFzcz0ic3QxMCIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTUuNjMgMzE3LjQ5IEwzOS4zNyAzMTcuNDkgQTUuNjI1IDUuNjI1IC0xODAgMCAwIDM5LjM3IDMwNi4yNCBMNS42MyAzMDYuMjQgQTUuNjI1IDUuNjI1IC0xODAgMSAwIDUuNjMgMzE3LjQ5DQoJCQkJCQkgWiIgY2xhc3M9InN0MTgiLz4NCgkJCTx0ZXh0IHg9IjUuMzgiIHk9IjMxNC4yNyIgY2xhc3M9InN0MTkiPlBhcnNlTG9nPC90ZXh0PgkJPC9nPg0KCQk8ZyBpZD0ic2hhcGU0NC0yMzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwOCwtNTguMjQ2MykiPg0KCQkJPHRpdGxlPlByb2Nlc3MuNDQ8L3RpdGxlPg0KCQkJPGRlc2M+U3BsaXRTZXEgZ3JvdXA8L2Rlc2M+DQoJCQk8ZyBpZD0ic2hhZG93NDQtMjM2IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIuMTIxMzIsMi4xMjEzMikiIGNsYXNzPSJzdDEiPg0KCQkJCTxyZWN0IHg9IjAiIHk9IjI5NC45OTEiIHdpZHRoPSIxMTQuNzUiIGhlaWdodD0iMjIuNSIgY2xhc3M9InN0MTAiLz4NCgkJCTwvZz4NCgkJCTxyZWN0IHg9IjAiIHk9IjI5NC45OTEiIHdpZHRoPSIxMTQuNzUiIGhlaWdodD0iMjIuNSIgY2xhc3M9InN0MTciLz4NCgkJCTx0ZXh0IHg9IjIxLjI5IiB5PSIzMDkuNTQiIGNsYXNzPSJzdDE2Ij5TcGxpdFNlcSBncm91cDwvdGV4dD4JCTwvZz4NCgkJPGcgaWQ9InNoYXBlNDUtMjQxIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNDEuODc5LC0xOC44NzEzKSI+DQoJCQk8dGl0bGU+U3RhcnQvRW5kLjQ1PC90aXRsZT4NCgkJCTxkZXNjPlBhcnNlSGVhZGVycyB0YWJsZTwvZGVzYz4NCgkJCTxnIGlkPSJzaGFkb3c0NS0yNDIiIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMi4xMjEzMiwyLjEyMTMyKSIgY2xhc3M9InN0MSI+DQoJCQkJPHBhdGggZD0iTTUuNjMgMzE3LjQ5IEw3OS44NyAzMTcuNDkgQTUuNjI1IDUuNjI1IC0xODAgMCAwIDc5Ljg3IDMwNi4yNCBMNS42MyAzMDYuMjQgQTUuNjI1IDUuNjI1IC0xODAgMSAwIDUuNjMgMzE3LjQ5DQoJCQkJCQkJIFoiIGNsYXNzPSJzdDEwIi8+DQoJCQk8L2c+DQoJCQk8cGF0aCBkPSJNNS42MyAzMTcuNDkgTDc5Ljg3IDMxNy40OSBBNS42MjUgNS42MjUgLTE4MCAwIDAgNzkuODcgMzA2LjI0IEw1LjYzIDMwNi4yNCBBNS42MjUgNS42MjUgLTE4MCAxIDAgNS42MyAzMTcuNDkNCgkJCQkJCSBaIiBjbGFzcz0ic3QxNyIvPg0KCQkJPHRleHQgeD0iNy40IiB5PSIzMTQuMjciIGNsYXNzPSJzdDE5Ij5QYXJzZUhlYWRlcnMgdGFibGU8L3RleHQ+CQk8L2c+DQoJCTxnIGlkPSJzaGFwZTQ2LTI0NyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTAxLjI1LC02LjQ5NjMyKSI+DQoJCQk8dGl0bGU+RXh0ZXJuYWwgRGF0YS40NjwvdGl0bGU+DQoJCQk8ZGVzYz5GaW5hbCBSZXBlcnRvaXJlIEZBU1RRPC9kZXNjPg0KCQkJPGcgaWQ9InNoYWRvdzQ2LTI0OCIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyLjEyMTMyLDIuMTIxMzIpIiBjbGFzcz0ic3QxIj4NCgkJCQk8cGF0aCBkPSJNNC41IDI4MS40OSBMMTI4LjI1IDI4MS40OSBBMzguMjUgMzguMjUgLTE4MCAwIDAgMTI4LjI1IDMxNy40OSBMNC41IDMxNy40OSBBMzguMjUgMzguMjUgMCAwIDEgNC41IDI4MS40OQ0KCQkJCQkJCSBaIiBjbGFzcz0ic3QxMCIvPg0KCQkJPC9nPg0KCQkJPHBhdGggZD0iTTQuNSAyODEuNDkgTDEyOC4yNSAyODEuNDkgQTM4LjI1IDM4LjI1IC0xODAgMCAwIDEyOC4yNSAzMTcuNDkgTDQuNSAzMTcuNDkgQTM4LjI1IDM4LjI1IDAgMCAxIDQuNSAyODEuNDkgWiINCgkJCQkJY2xhc3M9InN0MTEiLz4NCgkJCTx0ZXh0IHg9IjE4LjQ1IiB5PSIyOTguMjgiIGNsYXNzPSJzdDEyIj5GaW5hbCBSZXBlcnRvaXJlIDx0c3BhbiB4PSI1MC43OSIgZHk9IjEuMzUyZW0iIGNsYXNzPSJzdDE0Ij5GQVNUUTwvdHNwYW4+PC90ZXh0PgkJPC9nPg0KCTwvZz4NCjwvc3ZnPg0K" />
 </center>
 </div>
+</div>
+<div id="installation-and-environment-setup" class="section level2">
+<h2>Installation and Environment Setup</h2>
+<div id="immcantation" class="section level4">
+<h4>Immcantation</h4>
+<ul>
+<li>First, <a href="https://hub.docker.com/r/immcantation/suite">immcantation
+v.4.4.0</a> was downloaded via Docker</li>
+</ul>
+<pre><code>docker pull immcantation/suite:4.4.0</code></pre>
+<ul>
+<li>Next, the <a href="https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit">SRA
+Toolkit</a> was downloaded, and the <a href="https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit">installation
+guide</a> followed.</li>
+</ul>
+</div>
+<div id="sra-toolkit" class="section level4">
+<h4>SRA Toolkit</h4>
+<p>We need the first 25,000 sequences of sample <code>ERR346600</code>,
+which may downloaded using fastq-dump from the <a href="https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit">SRA
+Toolkit</a>.</p>
+<pre><code>fastq-dump --split-files -X 25000 ERR346600</code></pre>
+</div>
+</div>
+<div id="paired-end-assembly" class="section level2">
+<h2>Paired-end assembly</h2>
+<p>Each set of paired-ends mate-pairs is first assembled into a full
+length Ig sequence using the align subcommand of
+<code>AssemblePairs.py</code>:</p>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+AssemblePairs.py align -1 /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data/ERR346600_2.fastq -2 /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data/ERR346600_1.fastq \
+    --coord sra --rc tail --outname M1 --log AP.log</code></pre>
+<p><strong>Error:</strong></p>
+<pre><code>/Users/.../ERR346600_2.fastq does not exist.</code></pre>
+<p>Note on <a href="https://github.com/compose-spec/compose-spec/issues/191">docker</a>:</p>
+<pre><code>Two suffixes :z or :Z can be added to the volume mount. These suffixes tell Docker to relabel file objects on the shared volumes. The &#39;z&#39; option tells Docker that the volume content will be shared between containers. Docker will label the content with a shared content label. Shared volumes labels allow all containers to read/write content. The &#39;Z&#39; option tells Docker to label the content with a private unshared label. Private volumes can only be used by the current container.</code></pre>
+<p>Note also: <a href="https://stackoverflow.com/questions/44876778/how-can-i-use-a-local-file-on-container" class="uri">https://stackoverflow.com/questions/44876778/how-can-i-use-a-local-file-on-container</a></p>
+<pre><code>Yes, you can do this. What you are describing is a bind mount. See https://docs.docker.com/storage/bind-mounts/ for documentation on the subject.
+
+For example, if I want to mount a folder from my home directory into /mnt/mydata in a container, I can do:
+
+docker run -v /Users/andy/mydata:/mnt/mydata myimage
+Now, /mnt/mydata inside the container will have access to /Users/andy/mydata on my host.</code></pre>
+<p><strong>Solution: Bind Mount. Take Two:</strong></p>
+<p>Note that the source data is mapped to <code>/data</code>, as
+<code>Users/my/data:/data</code></p>
+<pre class="bash"><code># Already evaluated...
+
+docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+AssemblePairs.py align -1 /data/ERR346600_2.fastq -2 /data/ERR346600_1.fastq \
+    --coord sra --rc tail --outname M1 --log AP.log</code></pre>
+<p><strong>Output:</strong> <code>M1_assemble-pass.fastq</code></p>
+<p>During assembly we have defined read 2 (V-region) as the head of the
+sequence (-1) and read 1 as the tail of the sequence (-2). The
+<code>--coord</code> argument defines the format of the sequence header
+so that AssemblePairs.py can properly identify mate-pairs; in this case,
+we use <code>--coord sra</code> as our headers are in the SRA/ENA
+format.</p>
+<div id="parselog.py" class="section level4">
+<h4>ParseLog.py</h4>
+<p>The <code>ParseLog.py</code> tool is then used to build a
+tab-delimited file of results from the <code>AssemblePairs.py</code> log
+file:</p>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+ParseLog.py -l /data/AP.log -f ID LENGTH OVERLAP ERROR PVALUE</code></pre>
+<p>Which will containing the following columns:</p>
+<pre><code>Field Description
+
+ID - Sequence name
+
+LENGTH - Length of the assembled sequence
+
+OVERLAP - Length of the overlap between mate-pairs
+
+ERROR - Mismatch rate of the overlapping region
+
+P-VALUE - P-value for the assembly</code></pre>
+<p><strong>Not currently working because AP.log was not
+created.</strong></p>
+<p>To list containers:</p>
+<pre><code>docker container ls
+CONTAINER ID   IMAGE                      COMMAND                  CREATED        STATUS        PORTS     NAMES
+d68ab8cd3a00   immcantation/suite:4.4.0   &quot;AssemblePairs.py al…&quot;   13 hours ago   Up 13 hours             nostalgic_mirzakhani</code></pre>
+<pre><code>docker logs -f d68ab8cd3a00
+
+       START&gt; AssemblePairs
+     COMMAND&gt; align
+       FILE1&gt; ERR346600_2.fastq
+       FILE2&gt; ERR346600_1.fastq
+  COORD_TYPE&gt; sra
+       ALPHA&gt; 1e-05
+   MAX_ERROR&gt; 0.3
+     MIN_LEN&gt; 8
+     MAX_LEN&gt; 1000
+SCAN_REVERSE&gt; False
+       NPROC&gt; 6
+
+PID 7&gt; Error in sibling process detected. Cleaning up.
+Process Process-8:
+Traceback (most recent call last):
+  File &quot;/usr/lib64/python3.11/multiprocessing/process.py&quot;, line 314, in _bootstrap
+    self.run()
+  File &quot;/usr/lib64/python3.11/multiprocessing/process.py&quot;, line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File &quot;/usr/local/lib/python3.11/site-packages/presto/Multiprocessing.py&quot;, line 607, in collectPairQueue
+    log_handle = open(out_args[&#39;log_file&#39;], &#39;w&#39;)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: &#39;/Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data/AP.log&#39;
+NOTICE&gt; Exit signal received.
+</code></pre>
+</div>
+<div id="current-try" class="section level4">
+<h4>Current Try:</h4>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+  AssemblePairs.py align -1 /data/ERR346600_2.fastq -2 /data/ERR346600_1.fastq \
+    --coord sra --rc tail --maxerror 0.1 --outname M1 --log /data/AP.log </code></pre>
+<p><strong>Output:</strong></p>
+<ol style="list-style-type: decimal">
+<li><p><code>M1_assemble-pass.fastq</code></p></li>
+<li><p><code>AP.log</code></p></li>
+</ol>
+</div>
+<div id="parselog.py-1" class="section level4">
+<h4>ParseLog.py</h4>
+<p>The <code>ParseLog.py</code> tool is then used to build a
+tab-delimited file of results from the <code>AssemblePairs.py</code> log
+file:</p>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+  ParseLog.py -l /data/AP.log -f ID LENGTH OVERLAP ERROR PVALUE</code></pre>
+<p><strong>Output:</strong></p>
+<ol style="list-style-type: decimal">
+<li><code>AP_table.tab</code> (tsv)</li>
+</ol>
+<p>Which will containing the following columns:</p>
+<pre><code>Field Description
+
+ID - Sequence name
+
+LENGTH - Length of the assembled sequence
+
+OVERLAP - Length of the overlap between mate-pairs
+
+ERROR - Mismatch rate of the overlapping region
+
+P-VALUE - P-value for the assembly</code></pre>
+</div>
+</div>
+<div id="quality-control-step-filter-sequence" class="section level2">
+<h2>2) (Quality Control Step) Filter Sequence</h2>
+<div id="removing-low-quality-reads" class="section level3">
+<h3>Removing Low-Quality Reads</h3>
+<p>Quality control begins with the identification and removal of
+low-quality reads using the quality subcommand of the
+<code>FilterSeq.py</code> tool. In this example, reads with mean Phred
+quality scores less than 20 (<code>-q 20</code>) are removed:</p>
+<p><strong>Tutorial Command</strong></p>
+<pre class="bash"><code>FilterSeq.py quality -s M1_assemble-pass.fastq -q 20 --outname M1 --log FS.log</code></pre>
+<p><strong>TH Command</strong></p>
+<p>Throw out low quality reads, anything below Q30 gets tossed</p>
+<pre class="bash"><code>sudo docker run -v $DATA_DIR:/data:z immcantation/suite:devel \
+    FilterSeq.py quality -s $SEQ1 -q 30 -o $SEQ2 </code></pre>
+<p><strong>Our Command</strong></p>
+<p>We will throw our reads that satisfy <code>&lt; Q20</code>.</p>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+  FilterSeq.py quality -s /data/M1_assemble-pass.fastq -q 20 --outname M1 --log /data/FS.log</code></pre>
+<p><strong>Output:</strong></p>
+<ol style="list-style-type: decimal">
+<li><p><code>M1_quality-pass.fastq</code></p></li>
+<li><p><code>FS.log</code></p></li>
+</ol>
+<div id="parselog.py-2" class="section level4">
+<h4>ParseLog.py</h4>
+<p>The <code>ParseLog.py</code> tool is then used to build tab-delimited
+file from the <code>FilterSeq.py</code> log:</p>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+  ParseLog.py -l /data/FS.log -f ID QUALITY</code></pre>
+<p><strong>Output:</strong></p>
+<ol style="list-style-type: decimal">
+<li><code>FS_table.tab</code></li>
+</ol>
+<p>With the following variables:</p>
+<pre><code>Field Description
+
+ID - Sequence name
+
+QUALITY - Quality score</code></pre>
+</div>
+</div>
+<div id="read-annotation-and-masking-of-primer-regions" class="section level3">
+<h3>Read annotation and masking of primer regions</h3>
+<p>When dealing with Ig sequences, it is important to cut or mask the
+primers, as B cell receptors are subject to somatic hypermutation (the
+accumulation of point mutations in the DNA) and degenerate primer
+matches can look like mutations in downstream applications. The
+<code>score</code> subcommand of <code>MaskPrimers.py</code> is used to
+identify and remove the V-segment and C-region PCR primers for both
+reads:</p>
+<p><strong>Tutorial Command</strong></p>
+<pre class="bash"><code>MaskPrimers.py score -s M1_quality-pass.fastq -p Greiff2014_VPrimers.fasta \
+    --start 4 --mode mask --pf VPRIMER --outname M1-FWD --log MPV.log
+
+MaskPrimers.py score -s M1-FWD_primers-pass.fastq -p Greiff2014_CPrimers.fasta \
+    --start 4 --mode cut --revpr --pf CPRIMER --outname M1-REV --log MPC.log</code></pre>
+<p>In this data set the authors have added a random sequence of 4 bp to
+the start of each read before the primer sequence to increase sequence
+diversity and the reliability of cluster calling on the Illumina
+platform. As such, both primers begin at position 4
+(<code>--start 4</code>), but the C-region primer begins 4 bases from
+the end of the assembled read. The addition of the <code>--revpr</code>
+argument to the second <code>MaskPrimers.py</code> step instructs the
+tool to reverse complement the primer sequences and check the tail of
+the read.</p>
+<p>The two primer regions have also been treated differently. The
+V-segment primer has been masked (replaced by Ns) using the
+<code>--mode mask</code> argument to preserve the V(D)J length, while
+the C-region primer has been removed from the sequence using the
+<code>--mode cut</code> argument.</p>
+<p>During each iteration of the <code>MaskPrimers.py</code> tool an
+annotation field was added with the name of the primer, with the name of
+the field specified by the <code>--pf</code> argument, such that after
+both iterations each sequence contains an annotation of the form:</p>
+<p><strong>TH Command</strong></p>
+<pre class="bash"><code>#match the reverse primers and read the reverse half of the barcode
+sudo docker run -v $DATA_DIR:/data:z immcantation/suite:devel \
+    MaskPrimers.py score -s $SEQ3 -p data/$Sub0/AlpVHH.fasta --barcode \
+        --start 8 --maxerror 0.01 --mode cut --revpr --pf CPRIMER \
+        -o $SEQ4 
+
+#match the forward primers and read the forward half of the barcode
+sudo docker run -v $DATA_DIR:/data:z immcantation/suite:devel \
+    MaskPrimers.py score -s $SEQ2 -p data/$Sub0/AlpVHH.fasta --barcode \
+        --start 8 --maxerror 0.01 --mode cut --pf VPRIMER \
+        -o $SEQ3 
+</code></pre>
+<p><strong>Our Commands</strong></p>
+<p>Note that we will change the max error rate, because no sequences are
+passing..</p>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+  MaskPrimers.py score -s /data/M1_quality-pass.fastq -p /data/Greiff2014_VPrimers.fasta \
+      --start 4 --mode mask --pf VPRIMER --outname M1-FWD --log /data/MPV.log \
+      --maxerror 0.50
+      </code></pre>
+<p><strong>Output:</strong></p>
+<ol style="list-style-type: decimal">
+<li><p><code>M1-FWD_primers-pass.fastq</code></p></li>
+<li><p><code>MPV.log</code></p></li>
+</ol>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+MaskPrimers.py score -s /data/M1-FWD_primers-pass.fastq -p /data/Greiff2014_CPrimers.fasta \
+    --start 4 --mode cut --revpr --pf CPRIMER --outname M1-REV --log /data/MPC.log \
+    --maxerror 0.50</code></pre>
+<p><strong>Output:</strong></p>
+<ol style="list-style-type: decimal">
+<li><p><code>M1-REV_primers-pass.fastq</code></p></li>
+<li><p><code>MPC.log</code></p></li>
+</ol>
+<div id="parse-log-summary" class="section level4">
+<h4>Parse Log Summary</h4>
+<pre class="bash"><code>docker run -v /Users/emoseley/Desktop/Tufts/Su23-DS-288-Capstone/edwardmoseley.github.io/code/data:/data immcantation/suite:4.4.0 \
+  ParseLog.py -l /data/MPV.log /data/MPC.log -f ID PRIMER ERROR</code></pre>
+<p>Capturing the following annotations:</p>
+<pre><code>
+Field Description
+
+ID Sequence name
+
+PRIMER Primer name
+
+ERROR Primer match error rate</code></pre>
+</div>
+</div>
+</div>
+<div id="deduplication-and-filtering" class="section level2">
+<h2>Deduplication and filtering</h2>
 </div>
 </div>
 
