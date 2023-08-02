@@ -1,0 +1,92 @@
+---
+title: "Lit Review Notes"
+output: html_document
+date: "2023-07-31"
+---
+
+# Cizmeci, et al. Distinct clonal evolution of B-cells in HIV controllers with neutralizing antibody breadth (2021) 
+
+* Despite significant efforts, vaccination strategies have been unable to induce similar neutralization breadth and the mechanisms underlying neutralizing antibody induction remain largely elusive.
+
+* We therefore performed an analysis of paired heavy and light chain B-cell receptor (BCR) repertoires in 12,591 HIV-1 envelope-specific single memory B-cells to determine alterations in the BCR immunoglobulin gene repertoire and B-cell clonal expansions that associate with neutralizing antibody breadth in 22 HIV controllers.
+
+* **We found that the frequency of genomic mutations in IGHV and IGLV was directly correlated with serum neutralization breadth.**
+
+* The repertoire of the most mutated antibodies was dominated by a small number of large clones with evolutionary signatures suggesting that these clones had reached peak affinity maturation.
+
+* These data demonstrate that even in the setting of low plasma HIV antigenemia, similar to what a vaccine can potentially achieve, BCR selection for extended somatic hypermutation and clonal evolution can occur in some individuals suggesting that **host-specific factors might be involved that could be targeted with future vaccine strategies**.
+
+## Intro
+
+* development of neutralizing antibody responses is seen in about 10–30% of HIV-1-infected individuals but often requires years of infection
+
+* High viremia with rapid viral diversification, along with infection-associated immune activation have been associated with the evolution of antibody neutralization breadth.
+
+* A specific feature characterizing many broadly neutralizing antibodies (bNAbs) is the:
+  * High mutation frequency in their variable domains, which is indicative of many cycles of **somatic hypermutation** (SHM) in **immunoglobulin** (Ig) **variable-diversity-joining** [V(D)J] gene segments
+  * This is believed to result in superior B-cell Receptor-Antigen **affinity maturation**
+
+* The requirement for repeated cycling through **germinal centers** (GCs) to accumulate affinity and specificity enhancing mutations is a lengthy process and is reflected by the time required for bNAbs to be elicited in the presence of a constantly evolving virus.
+
+* Neutralizing antibody breadth may be achievable in the absence of high levels of viremia and rapidly evolving viral diversity, a scenario that more likely can be accomplished with vaccination strategies.
+
+* In HIV controller individuals, evolution of neutralization breadth was linked to low but persistent HIV viral antigenemia in the setting of a unique inflammatory profile, while antigenic diversity was not a significant contributor
+
+**Summary:** In this study, we selected 22 controllers who exhibited different levels of neutralization breadth (ranging from 0/11 to 11/11 of tier 2/3 viruses neutralized) to elucidate features of the HIV-specific antibody repertoire that are associated with neutralization breadth. We performed a natively paired heavy and light chain B-cell receptor repertoire analysis of HIV-1 envelope (Env)-specific **memory B-cells (MBCs)** using high-throughput single-cell sequencing to determine alterations in the **BCR Ig gene repertoire** and **B-cell clonal expansions** that track with neutralization breadth.
+
+## Results
+
+* Top-neutralizer (TN) MBCs showed an Ig subclass distribution similar to serum IgG antibodies, with average levels of IgG1 (78.6%) > IgG2 (12.5%) > IgG3 (8.8%) > IgG4 (0.1%) 
+
+* Non-neutralizers (NN) Ig subclasses from differed in hierarchy with average levels of IgG1 (82.5%) > IgG3 (11.1%) > IgG2 (6.2%) > IgG4 (0.2%) (Figure 1A)
+
+### IGH-VDJ and IGL-VJ Gene Segment Usage
+
+* The MBC repertoires were found to use 40 **IGHV genes** representing all seven human VH gene families. Of the seven IGHV gene families, IGHV1 was most commonly used in both NN and TN repertoires, consistent with prior reports that anti-HIV antibodies frequently use IGHV1 genes
+
+* The top two most fre- quently used IGHV genes were IGHV1-69 and IGHV4-34 in both the TN and NN repertoires, fol- lowed by IGHV4-4 in the TN and IGHV1-24 and IGHV1-2 in the NN repertoire
+
+* For IGHD and IGHJ genes, no statistical significant differences were observed. 
+
+* The most frequently used heavy chain VDJ genes were IGHV1-69, IGHD3-22, IGHJ4 in NN and IGHV1- 69, IGHD4-17, IGHJ4 in TN.
+
+* Among IGLV and IGLJ genes, IGLKV3 and IGLKV3-20 dominated in both TN and NN repertoires, which is consistent with previously reported data showing the dominance of IGLKV3-20 (Jackson et al., 2012).
+
+**We next compared the proportions of specific IGH/IGL pairs between TNs and NNs.**
+
+* IGHV1-69/ IGKV3-20 combination followed by IGHV1-69/IGKV1-5 dominated in NN while IGHV4-4/IGLV6-57 followed by V1-69-2/LV1-51 were most frequently found in TNs
+
+* Overall, the frequencies of the top 3 IGHV/HJ-IGLV/LJ pairs differed significantly between NNs and TNs (Mann Whitney U-test, p<0.05).
+
+* We next were interested to determine if we could find sequences of known bNAbs as listed in the CATNAP database (Yoon et al., 2015) and as summarized by Sok and Burton, 2018, using the same IGHV and IGLV gene segment usage and equal CDRH3 length as minimum criteria. Overall, very few sequences in our data matched known bNAb IGHV and IGLV gene pairs and of those none showed high levels of CDRH3 sequence similarity.
+
+**Summary:** Taken together, these results suggest that V(D)J gene usage was similar overall between TNs and NNs, but the frequency and combination of IGH/IGL pairs differed between groups.
+
+### Characteristics of Complementarity Determining Regions (CDRs)
+
+Complementarity determining regions (CDRs) play critical roles in the binding of antibodies to antigens and unusually long CDRH3s have been described for some bNAbs.
+
+### Rates of SHM in IGHV and IGLV
+
+### Clonal selection
+
+## Discussion
+
+* Overall, when comparing frequencies of either IGH or IGL genes between those individuals who developed antibody neutralization breadth compared to those who did not, the repertoire analysis did not reveal substantial differences.
+
+* When we however compared the repertoire of paired IGH/IGL sequences between both groups, clear differences in the hierarchy of IGHV/IGHJ/IGLV/IGLJ combinations were observed. Despite these distinguishing pattern, we did not observe an enrichment of known bNAb sequences in the TNs. 
+
+* The general absence of these or similar bNAb sequences in our data therefore suggests that the neutralization breadth observed in the TNs was either from single bNAbs with non-classical epitope specificities or due to multiple neutralizing antibodies targeting multiple different epitopes.
+
+* In addition to the composition of the BCR repertoire, that separated TNs from NNs, both groups were clearly distinguishable by the significantly higher rates of mutations in the VH and VL genes in the individuals with neutralizing antibody breadth.
+
+* Moreover, the mutation frequency in our data correlated directly with the neutralization breadth consistent with the notion that high levels of SHM are generally necessary for neutralization breadth and potency (Klein et al., 2013).
+
+* Initial interclonal and then intraclonal competition between B-cells during affinity maturation is well described (Kuraoka et al., 2016; Tas et al., 2016), resulting in diverse repertoires. Indeed, we found that with increasing numbers of mutations in HV, fewer clones with less diverse HV-HJ combinations dominated, suggesting a process that allows these clones to mature and accumulate mutations.
+  * Since GCs select for affinity and not for neutralizing breadth and since evolving viruses, such as HIV-1, will continuously elicit novel immune responses from naive B-cells, strong effective selection normally occurs, so that antibodies specific to the contemporaneous virus have a sufficient advantage to outcompete any less-specific potential broad neutralizers before they take hold.
+
+* Indeed, by focusing on the kinship relations among Ig gene segment recombinations within individ- ual clones, we found evidence of natural selection in the NNs, with younger and less diverse clones continuously evolving, constantly exploring novel evolutionary space. Conversely, in TNs, this contin- uous evolution does not seem to occur, but rather specific evolutionary paths are pursued.
+  * One potential mechanism behind this observation is that neutralizers may generate massive bursts of clones that compete aggressively and prevent the evolution of lower affinity variants.
+  * Alternatively, the effects of immunodominance where B-cell specific to an epitopic site dominate B-cells that tar- get other sites, as has been described in influenza infection (Angeletti et al., 2017), might not occur to the same degree in TNs as it might do in NNs.
+  * Indeed, a generalized deficiency of normal selec- tion against B-cells expressing IgG with long CDRH3 regions and high SHM frequencies has been associated with the development of HIV neutralizing breadth (Roskin et al., 2020).
+

@@ -1,0 +1,67 @@
+---
+title: "iReceptor EDA"
+output: html_document
+date: "2023-07-28"
+---
+
+#### Load Libraries
+
+```{r}
+if (!require('rjsonlite')) install.packages('jsonlite')
+```
+
+## Load Metadata
+
+```{r}
+tmp <- jsonlite::fromJSON("~/Downloads/ir_2023-07-24_2002_64bed8ba7d374/airr-covid-19-metadata.json")
+
+# Subset out the good stuff
+dat <- tmp$Repertoire
+
+# Remove it from original object
+tmp$Repertoire <- NULL
+# While we're at it, drop tmp
+#rm(tmp)
+```
+
+### Subjects
+
+```{r}
+sids <- dat$subject
+
+tmp <- sids$diagnosis[[1]]
+tmp$disease_diagnosis <- NULL
+
+for (i in 2:length(sids$diagnosis)){
+     tmp_two <- sids$diagnosis[[i]]
+     tmp_two$disease_diagnosis <- NULL
+     tmp <- rbind(tmp, tmp_two)#$study_group_description)
+}
+
+table(tmp$study_group_description)
+```
+
+
+### Scan metadata
+
+```{r, echo = T, eval = F}
+# First, we're going to remove information related to the `study`, which will leave the `subject` as the unit of analysis.
+
+
+for (nm in colnames(dat)[!grepl("study", ignore.case = T, colnames(dat))]){
+  # Drop the variables
+  dat[[nm]] <- NULL
+}
+```
+
+
+
+
+
+
+# Subset Scan
+
+```{r}
+tmp <- read.csv("~/Downloads/ir_2023-07-24_1602_64bea09e8f6be/airr-covid-19.tsv", header = T, stringsAsFactors = F, sep = '\t')
+
+```
