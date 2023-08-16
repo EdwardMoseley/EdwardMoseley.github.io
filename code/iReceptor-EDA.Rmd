@@ -21,7 +21,7 @@ dat <- tmp$Repertoire
 # Remove it from original object
 tmp$Repertoire <- NULL
 # While we're at it, drop tmp
-#rm(tmp)
+rm(tmp)
 ```
 
 ### Subjects
